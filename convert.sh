@@ -5,6 +5,7 @@ DIR="$(dirname "$DIR")"
 cd "$DIR" || exit
 
 langs=("en" "ru")
+systems=('common' 'linux')
 manSection="1"
 
 tldconv() {
@@ -18,16 +19,17 @@ tldconv() {
 	tail -n +4 "$1" |sed 's/^- /.IP *\n/' |sed 's/^`/.in +4m\n.B /' |sed 's/`$/\n.in\n/' |sed 's/^> / /'
 }
 
-doProcessLang(){
-	lng=$1
+doProcess(){
+	sys=$1
+	lng=$2
 	if [[ "$lng" != "en" ]]; then
 		trgDir="man/$lng/man$manSection"
-		srcDir="tldr/pages.$lng"
+		srcDir="tldr/pages.$lng/$sys"
 	else
 		trgDir="man/man$manSection"
-		srcDir="tldr/pages"
+		srcDir="tldr/pages/$sys"
 	fi
-	echo "Processing language $lng."
+	echo "Processing pages of the system '$sys' to the language '$lng'."
 	echo "from '$srcDir' to '$trgDir'"
 
 	mkdir -p "$trgDir" || exit
@@ -39,8 +41,11 @@ doProcessLang(){
 
 }
 
+
 for  lng in "${langs[@]}"; do
-	doProcessLang "$lng"
+	for  sys in "${systems[@]}"; do
+		doProcess "$sys" "$lng"
+	done
 done
 
 
